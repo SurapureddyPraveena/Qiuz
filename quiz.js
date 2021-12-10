@@ -1,3 +1,41 @@
+const username=document.getElementById("username");
+const startquiz=document.getElementById("startquiz");
+const error=document.getElementById("error");
+const rules_submit=document.getElementById("rules_submit");
+const rules=document.getElementById("rules");
+const nextPage=document.getElementById("nextPage");
+var lname;
+nextPage.addEventListener("click", function(event){
+        event.preventDefault();
+        const namee=document.getElementById("Uname").value;
+        lname=namee;
+        if(namee==""){
+            error.style.display="block";
+            error.innerHTML="<h5>Please enter the username!</h5>";
+            error.style.color="red";
+        }
+        else if (localStorage.getItem(namee))
+        {   
+            error.style.display="block";
+            error.innerHTML="<h5>Username not available!</h5>";
+            error.style.color="red";
+        }
+        else {
+            rules.style.display="block";
+            username.style.display="none";
+            rules_submit.addEventListener("click", function(e){
+                e.preventDefault();
+                rules.style.display="none";
+                startquiz.style.display="block";
+                setInterval(countdown, 1000);
+            })
+        }
+})
+
+
+
+
+
 const quizData = [
     {
         question: "Inside which HTML element do we put the JavaScrpit",
@@ -84,6 +122,7 @@ const b_text = document.getElementById("b_text");
 const c_text = document.getElementById("c_text");
 const d_text = document.getElementById("d_text");
 const submitBtn = document.getElementById("submit");
+const table=document.getElementById("table");
 
 let currentQuiz = 0;
 let score = 0;
@@ -100,10 +139,17 @@ function loadQuiz() {
     b_text.innerText = currentQuizData.b;
     c_text.innerText = currentQuizData.c;
     d_text.innerText = currentQuizData.d;
+    submitBtn.innerHTML="Continue";
+}
+
+function deselectAnswers() {
+    answerEls.forEach((answerEl) => {
+        answerEl.checked = false;
+    });
 }
 
 function getSelected() {
-    let answer = undefined;
+    let answer;
 
     answerEls.forEach((answerEl) => {
         if (answerEl.checked) {
@@ -113,31 +159,66 @@ function getSelected() {
 
     return answer;
 }
-
-function deselectAnswers() {
-    answerEls.forEach((answerEl) => {
-        answerEl.checked = false;
-    });
-}
-
 submitBtn.addEventListener("click", () => {
-    // check to see the answer
+    setInterval(countdown, 1000);
     const answer = getSelected();
+    if (answer === quizData[currentQuiz].correct) {
+        score++;
+    }
 
-    if (answer) {
-        if (answer === quizData[currentQuiz].correct) {
-            score++;
-        }
-
-        currentQuiz++;
-        if (currentQuiz < quizData.length) {
-            loadQuiz();
-        } else {
-            quiz.innerHTML = `
-                <h2>You answered correctly at ${score}/${quizData.length} questions.</h2>
-                
-                <button onclick="location.reload()">Reload</button>
-            `;
+    currentQuiz++;
+    if (currentQuiz < quizData.length) {
+        loadQuiz();
+        
+    } else {
+        quiz.innerHTML = `
+            <h2>You answered correctly ${score}/${quizData.length} questions.</h2>
+            
+            <button onclick="location.reload()">Reload</button>
+        `;
+        quiz.style.display="block";
+        localStorage.setItem(lname, score);
+        table.style.display="block";
+        for(let i=0; i<localStorage.length; i++){
+            let key=localStorage.key(i);
+            let value=localStorage.getItem(key);
+            table.innerHTML+=`
+            <tr>
+                <td>${key}</td>
+                <td>${value}</td>
+            </tr>`;
         }
     }
 });
+const count=document.getElementById("count");
+const min=document.getElementById("min");
+var c=300;
+function countdown(){
+    if(c>=0){ 
+        const mins = Math.floor(c / 60) % 60;
+        const secs=Math.floor(c)%60;
+        min.innerHTML= mins  
+        count.innerHTML=secs;
+        c=c-1;
+    }
+    else{
+        quiz.innerHTML = `
+            <h2>You answered correctly ${score}/${quizData.length} questions.</h2>
+            
+            <button onclick="location.reload()">Reload</button>
+        `;
+        quiz.style.display="block";
+
+        localStorage.setItem(lname, score);
+        table.style.display="block";
+        for(let i=0; i<localStorage.length; i++){
+            let key=localStorage.key(i);
+            let value=localStorage.getItem(key);
+            table.innerHTML+=`
+            <tr>
+                <td>${key}</td>
+                <td>${value}</td>
+            </tr>`;
+        }
+    }
+}
